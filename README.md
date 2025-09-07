@@ -24,6 +24,11 @@ It allows users to explore trending movies, search by title or genre, view detai
 
 ---
 
+## 🌍 Live Demo
+👉 [CineHub Live Website](https://cinehubs.netlify.app/)  
+
+---
+
 ## 📦 Installation
 
 1. Clone the repository:

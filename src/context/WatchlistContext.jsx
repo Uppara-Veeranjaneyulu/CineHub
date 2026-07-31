@@ -24,23 +24,30 @@ export const WatchlistProvider = ({ children }) => {
   }, [watchlist]);
 
   const addToWatchlist = (movie) => {
-    if (watchlist.some((m) => m.id === movie.id)) return;
+    if (watchlist.some((m) => String(m.id) === String(movie.id))) return;
     setWatchlist((prev) => [...prev, movie]);
     showToast(`Added "${movie.title || 'Movie'}" to Watchlist!`, 'add');
   };
 
   const removeFromWatchlist = (movieOrId) => {
     const id = typeof movieOrId === 'object' ? movieOrId.id : movieOrId;
-    const targetMovie = typeof movieOrId === 'object' ? movieOrId : watchlist.find((m) => m.id === id);
+    const targetMovie = typeof movieOrId === 'object' ? movieOrId : watchlist.find((m) => String(m.id) === String(id));
 
-    if (watchlist.some((m) => m.id === id)) {
-      setWatchlist((prev) => prev.filter((m) => m.id !== id));
+    if (watchlist.some((m) => String(m.id) === String(id))) {
+      setWatchlist((prev) => prev.filter((m) => String(m.id) !== String(id)));
       showToast(`Removed "${targetMovie?.title || 'Movie'}" from Watchlist`, 'remove');
     }
   };
 
+  const clearWatchlist = () => {
+    if (watchlist.length === 0) return;
+    setWatchlist([]);
+    showToast('Cleared all items from Watchlist', 'remove');
+  };
+
   const isInWatchlist = (movieId) => {
-    return watchlist.some((m) => m.id === movieId);
+    if (!movieId) return false;
+    return watchlist.some((m) => String(m.id) === String(movieId));
   };
 
   const toggleWatchlist = (movie) => {
@@ -57,6 +64,7 @@ export const WatchlistProvider = ({ children }) => {
         watchlist,
         addToWatchlist,
         removeFromWatchlist,
+        clearWatchlist,
         isInWatchlist,
         toggleWatchlist,
       }}

@@ -4,7 +4,7 @@ import { useWatchlist } from '../context/WatchlistContext';
 import { Link } from 'react-router-dom';
 
 const Watchlist = () => {
-  const { watchlist } = useWatchlist();
+  const { watchlist, clearWatchlist } = useWatchlist();
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -15,6 +15,18 @@ const Watchlist = () => {
             {watchlist.length === 1 ? '1 saved title' : `${watchlist.length} saved titles`}
           </p>
         </div>
+        {watchlist.length > 0 && (
+          <button
+            onClick={() => {
+              if (window.confirm('Are you sure you want to delete your entire watchlist?')) {
+                clearWatchlist();
+              }
+            }}
+            className="px-4 py-2 bg-rose-600/20 text-rose-300 hover:bg-rose-600 hover:text-white border border-rose-500/40 font-bold text-xs rounded-xl transition cursor-pointer shadow flex items-center gap-1.5"
+          >
+            <span>🗑️ Clear Entire Watchlist</span>
+          </button>
+        )}
       </div>
 
       {watchlist.length === 0 ? (
@@ -32,7 +44,7 @@ const Watchlist = () => {
           </Link>
         </div>
       ) : (
-        <MovieList movies={watchlist} isWatchlist={true} />
+        <MovieList movies={watchlist} isWatchlistPage={true} />
       )}
     </div>
   );

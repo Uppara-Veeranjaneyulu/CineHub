@@ -171,13 +171,13 @@ const MovieDetails = () => {
             <div className="mb-8">
               <button
                 onClick={() => toggleWatchlist(movie)}
-                className={`px-6 py-3 rounded-xl font-bold transition shadow-lg flex items-center gap-2 ${
+                className={`px-6 py-3 rounded-xl font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${
                   isInWatchlist(movie.id)
-                    ? 'bg-red-600/30 text-red-300 border border-red-500/50 hover:bg-red-600 hover:text-white'
-                    : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:from-orange-400 hover:to-amber-400 transform hover:scale-105'
+                    ? 'bg-green-600 hover:bg-green-500 text-white shadow-green-600/30'
+                    : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-orange-500/20 transform hover:scale-105'
                 }`}
               >
-                <span>{isInWatchlist(movie.id) ? '✓ Saved in Watchlist' : '+ Add to Watchlist'}</span>
+                <span>{isInWatchlist(movie.id) ? '✓ Added' : '+ Add to Watchlist'}</span>
               </button>
             </div>
           </div>
@@ -237,7 +237,7 @@ const MovieDetails = () => {
             <h3 className="text-xl font-extrabold text-gray-100 mb-4 flex items-center gap-2">
               <span>✨</span> You Might Also Like
             </h3>
-            <MovieList movies={similarMovies} isWatchlist={false} />
+            <MovieList movies={similarMovies} />
           </div>
         )}
       </div>

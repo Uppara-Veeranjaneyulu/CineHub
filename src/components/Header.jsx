@@ -7,34 +7,37 @@ const Header = () => {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 bg-gray-900/90 backdrop-blur-md border-b border-gray-800 px-6 py-4 flex justify-between items-center shadow-lg">
+    <header className="sticky top-0 z-50 bg-[#07090E]/90 backdrop-blur-xl border-b border-amber-500/10 px-6 py-4 flex justify-between items-center transition-all duration-300 shadow-2xl">
+      {/* Brand Logo */}
       <Link to="/" className="flex items-center gap-2 group">
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black text-xl px-2.5 py-1 rounded-lg shadow-md group-hover:scale-105 transition-transform">
-          CH
-        </div>
-        <span className="text-2xl font-extrabold bg-gradient-to-r from-orange-400 to-amber-500 bg-clip-text text-transparent tracking-wide">
+        <span className="text-2xl font-black bg-gradient-to-r from-amber-200 via-amber-400 to-orange-500 bg-clip-text text-transparent tracking-tight">
           CineHub
         </span>
       </Link>
-      
-      <nav className="flex items-center gap-4">
-        <Link 
-          to="/" 
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            location.pathname === '/' ? 'text-orange-400 bg-orange-500/10' : 'text-gray-300 hover:text-orange-400'
+
+      {/* Navigation & Watchlist Pill */}
+      <nav className="flex items-center gap-3">
+        <Link
+          to="/"
+          className={`px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide transition-all ${
+            location.pathname === '/'
+              ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30 shadow-sm'
+              : 'text-gray-300 hover:text-amber-400 hover:bg-gray-900/60'
           }`}
         >
           Explore
         </Link>
-        <Link 
-          to="/watchlist" 
-          className={`relative px-4 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-            location.pathname === '/watchlist' ? 'text-orange-400 bg-orange-500/10' : 'text-gray-300 hover:text-orange-400'
+        <Link
+          to="/watchlist"
+          className={`relative px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide transition-all flex items-center gap-2 ${
+            location.pathname === '/watchlist'
+              ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30 shadow-sm'
+              : 'text-gray-300 hover:text-amber-400 hover:bg-gray-900/60'
           }`}
         >
           <span>Watchlist</span>
           {watchlist.length > 0 && (
-            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+            <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 text-[10px] font-black px-2 py-0.5 rounded-full shadow-md shadow-amber-500/30">
               {watchlist.length}
             </span>
           )}
@@ -45,4 +48,3 @@ const Header = () => {
 };
 
 export default Header;
-

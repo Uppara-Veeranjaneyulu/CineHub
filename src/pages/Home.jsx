@@ -28,7 +28,7 @@ const Home = () => {
   // Trailer Modal State
   const [activeTrailer, setActiveTrailer] = useState(null);
 
-  const { isInWatchlist, toggleWatchlist } = useWatchlist();
+  const { watchlist, toggleWatchlist } = useWatchlist();
   const { showToast } = useToast();
   const searchTimeoutRef = useRef(null);
 
@@ -251,7 +251,7 @@ const Home = () => {
     }
   };
 
-  // Open Trailer Modal for any movie/tv show
+  // Open Trailer Modal
   const handlePlayTrailer = async (item) => {
     const itemType = item.media_type || mediaType;
     const title = item.title || item.name || 'Trailer';
@@ -296,65 +296,88 @@ const Home = () => {
   const displayedMovies = getSortedMovies();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-16">
       {/* Featured Hero Banner */}
       {!activeSearch && !selectedGenre && featuredMovie && (
-        <div className="relative w-full h-[450px] md:h-[520px] overflow-hidden bg-gray-900 mb-8">
+        <div className="relative w-full h-[500px] md:h-[580px] overflow-hidden bg-[#07090E] mb-12 border-b border-amber-500/15">
           {featuredMovie.backdrop_path && (
             <img
               src={`https://image.tmdb.org/t/p/original${featuredMovie.backdrop_path}`}
               alt={featuredMovie.title || featuredMovie.name}
-              className="w-full h-full object-cover opacity-40 filter brightness-90"
+              className="w-full h-full object-cover opacity-45 filter brightness-95 saturate-120 transform scale-105"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent flex flex-col justify-end p-6 md:p-12 max-w-4xl">
-            <span className="inline-block w-fit text-xs font-bold uppercase tracking-wider text-orange-400 bg-orange-500/20 border border-orange-500/30 px-3 py-1 rounded-full mb-3">
-              ★ #1 Featured {mediaType === 'movie' ? 'Movie' : 'TV Show'}
-            </span>
-            <h1 className="text-3xl md:text-5xl font-black text-white leading-tight mb-3">
+          {/* Deep Multi-Layer Vignette */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-[#07090E]/65 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#07090E]/90 via-transparent to-transparent" />
+
+          <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-16 max-w-5xl">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-xs font-black uppercase tracking-widest text-amber-300 bg-amber-500/20 border border-amber-500/40 px-4 py-1.5 rounded-xl backdrop-blur-md shadow-lg shadow-amber-500/10">
+                #1 Featured {mediaType === 'movie' ? 'Movie' : 'TV Series'}
+              </span>
+              {featuredMovie.vote_average && (
+                <span className="text-xs font-black text-amber-300 bg-gray-950/85 border border-amber-500/25 px-3.5 py-1.5 rounded-xl backdrop-blur-md flex items-center gap-1 shadow-md">
+                  <span className="text-amber-400">★</span>
+                  <span>{Number(featuredMovie.vote_average).toFixed(1)} / 10</span>
+                </span>
+              )}
+            </div>
+
+            <h1 className="text-4xl md:text-6xl font-black text-white leading-tight tracking-tight mb-4 drop-shadow-2xl">
               {featuredMovie.title || featuredMovie.name}
             </h1>
-            <p className="text-gray-300 text-sm md:text-base line-clamp-3 mb-6 max-w-2xl">
+
+            <p className="text-gray-300 text-sm md:text-base line-clamp-3 mb-8 max-w-3xl leading-relaxed">
               {featuredMovie.overview}
             </p>
+
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => handlePlayTrailer(featuredMovie)}
-                className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl hover:from-orange-400 hover:to-amber-400 transition transform hover:scale-105 shadow-lg flex items-center gap-2"
+                className="px-8 py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-gray-950 font-black rounded-2xl transition transform hover:scale-105 shadow-2xl shadow-amber-500/30 flex items-center gap-2.5 cursor-pointer active:scale-95"
               >
-                <span>▶ Play Trailer</span>
+                <span className="text-xl">▶</span>
+                <span>Play Trailer</span>
               </button>
+
               <Link
                 to={`/movie/${featuredMovie.id}`}
-                className="px-6 py-3 bg-gray-800/80 backdrop-blur-md text-gray-200 border border-gray-700 hover:bg-gray-700 font-semibold rounded-xl transition"
+                className="px-8 py-4 bg-[#0D111D]/80 backdrop-blur-xl text-gray-200 border border-amber-500/25 hover:border-amber-400/50 hover:bg-gray-800 font-extrabold rounded-2xl transition shadow-xl"
               >
                 View Details
               </Link>
-              <button
-                onClick={() =>
-                  toggleWatchlist({
-                    ...featuredMovie,
-                    title: featuredMovie.title || featuredMovie.name,
-                  })
-                }
-                className={`px-6 py-3 rounded-xl font-bold transition shadow-lg flex items-center gap-2 cursor-pointer ${
-                  isInWatchlist(featuredMovie.id)
-                    ? 'bg-green-600 hover:bg-green-500 text-white shadow-green-600/30'
-                    : 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white shadow-orange-500/20'
-                }`}
-              >
-                <span>{isInWatchlist(featuredMovie.id) ? '✓ Added' : '+ Add to Watchlist'}</span>
-              </button>
+
+              {(() => {
+                const isFeaturedSaved = watchlist.some((m) => String(m.id) === String(featuredMovie.id));
+                return (
+                  <button
+                    onClick={() =>
+                      toggleWatchlist({
+                        ...featuredMovie,
+                        title: featuredMovie.title || featuredMovie.name,
+                      })
+                    }
+                    className={`px-8 py-4 rounded-2xl font-black tracking-wide transition shadow-xl flex items-center justify-center cursor-pointer active:scale-95 ${
+                      isFeaturedSaved
+                        ? 'bg-green-600 hover:bg-green-500 text-white shadow-green-600/30'
+                        : 'bg-[#0D111D]/80 backdrop-blur-xl text-amber-300 border border-amber-500/35 hover:bg-amber-500/15'
+                    }`}
+                  >
+                    <span>{isFeaturedSaved ? 'Added' : 'Add to Watchlist'}</span>
+                  </button>
+                );
+              })()}
             </div>
           </div>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-6 py-4">
         {/* Top Controls Bar: Movies / TV Toggle & Category Tabs */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 mb-8">
           {/* Media Type Toggle */}
-          <div className="bg-gray-900 border border-gray-800 p-1 rounded-xl flex items-center gap-1 w-full md:w-auto">
+          <div className="bg-[#0D111D] border border-amber-500/20 p-1.5 rounded-2xl flex items-center gap-1.5 w-full md:w-auto shadow-xl">
             <button
               onClick={() => {
                 setMediaType('movie');
@@ -362,13 +385,13 @@ const Home = () => {
                 setSearch('');
                 setActiveSearch('');
               }}
-              className={`flex-1 md:flex-initial px-5 py-2 rounded-lg text-xs font-bold transition ${
+              className={`flex-1 md:flex-initial px-6 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all ${
                 mediaType === 'movie'
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 shadow-lg shadow-amber-500/25'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              🎬 Movies
+              Movies
             </button>
             <button
               onClick={() => {
@@ -377,23 +400,23 @@ const Home = () => {
                 setSearch('');
                 setActiveSearch('');
               }}
-              className={`flex-1 md:flex-initial px-5 py-2 rounded-lg text-xs font-bold transition ${
+              className={`flex-1 md:flex-initial px-6 py-2.5 rounded-xl text-xs font-black tracking-wider uppercase transition-all ${
                 mediaType === 'tv'
-                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 shadow-lg shadow-amber-500/25'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              📺 TV Shows
+              TV Series
             </button>
           </div>
 
           {/* Quick Category Filter Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none py-1">
             {[
-              { id: 'trending', label: '🔥 Trending' },
-              { id: 'top_rated', label: '⭐ Top Rated' },
-              { id: 'popular', label: '🍿 Popular' },
-              { id: 'upcoming', label: mediaType === 'movie' ? '📅 Upcoming' : '📡 On Air' },
+              { id: 'trending', label: 'Trending' },
+              { id: 'top_rated', label: 'Top Rated' },
+              { id: 'popular', label: 'Popular' },
+              { id: 'upcoming', label: mediaType === 'movie' ? 'Upcoming' : 'On Air' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -403,10 +426,10 @@ const Home = () => {
                   setSearch('');
                   setActiveSearch('');
                 }}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                className={`px-5 py-2.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
                   category === tab.id && !selectedGenre && !activeSearch
-                    ? 'bg-gray-800 text-orange-400 border border-orange-500/40 shadow-sm'
-                    : 'text-gray-400 hover:text-white border border-transparent'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-lg shadow-amber-500/10'
+                    : 'bg-[#0D111D] text-gray-400 hover:text-white border border-gray-800/80 hover:border-gray-700'
                 }`}
               >
                 {tab.label}
@@ -415,24 +438,26 @@ const Home = () => {
           </div>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <span className="text-xs text-gray-400 font-semibold whitespace-nowrap">Sort:</span>
+          <div className="flex items-center gap-2.5 w-full md:w-auto">
+            <span className="text-xs text-gray-400 font-extrabold whitespace-nowrap uppercase tracking-widest">
+              Sort:
+            </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-gray-900 border border-gray-800 text-gray-200 text-xs font-semibold px-3 py-2 rounded-xl focus:outline-none focus:border-orange-500"
+              className="bg-[#0D111D] border border-amber-500/25 text-gray-200 text-xs font-extrabold px-4 py-2.5 rounded-xl focus:outline-none focus:border-amber-400 shadow-lg cursor-pointer"
             >
               <option value="default">Default Order</option>
-              <option value="rating_desc">★ Highest Rating</option>
-              <option value="release_desc">📅 Newest Date</option>
-              <option value="title_asc">🔤 Title (A-Z)</option>
+              <option value="rating_desc">Highest Rating</option>
+              <option value="release_desc">Newest Date</option>
+              <option value="title_asc">Title (A-Z)</option>
             </select>
           </div>
         </div>
 
-        {/* Search Bar with Live Auto-Suggestions */}
-        <div className="relative mb-6">
-          <form onSubmit={handleSearchSubmit} className="flex gap-2">
+        {/* Search Bar */}
+        <div className="relative mb-10">
+          <form onSubmit={handleSearchSubmit} className="flex gap-3">
             <div className="relative flex-grow">
               <input
                 type="text"
@@ -440,13 +465,13 @@ const Home = () => {
                 value={search}
                 onChange={handleSearchChange}
                 onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                className="w-full bg-gray-900 border border-gray-800 focus:border-orange-500 text-gray-100 placeholder-gray-500 px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/30 transition"
+                className="w-full bg-[#0D111D] border border-amber-500/20 focus:border-amber-400 text-gray-100 placeholder-gray-500 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-amber-500/15 transition-all text-sm font-semibold shadow-inner"
               />
               {search && (
                 <button
                   type="button"
                   onClick={clearSearch}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-sm px-2 py-1"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs font-bold px-2 py-1 bg-gray-800/80 rounded-lg transition"
                 >
                   ✕ Clear
                 </button>
@@ -454,7 +479,7 @@ const Home = () => {
             </div>
             <button
               type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl hover:from-orange-400 hover:to-amber-400 transition shadow-md whitespace-nowrap"
+              className="px-8 py-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-gray-950 font-black rounded-2xl transition-transform active:scale-95 shadow-xl shadow-amber-500/20 whitespace-nowrap cursor-pointer"
             >
               Search
             </button>
@@ -462,7 +487,7 @@ const Home = () => {
 
           {/* Auto-Suggestions Dropdown */}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-2 z-40 bg-gray-900/95 border border-gray-800 rounded-xl shadow-2xl overflow-hidden backdrop-blur-md">
+            <div className="absolute left-0 right-0 top-full mt-2 z-40 bg-[#0D111D]/95 border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-2xl">
               {suggestions.map((item) => {
                 const title = item.title || item.name;
                 const releaseYear = (item.release_date || item.first_air_date || '').split('-')[0];
@@ -471,9 +496,9 @@ const Home = () => {
                     key={item.id}
                     to={`/movie/${item.id}`}
                     onClick={() => setShowSuggestions(false)}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-800 transition border-b border-gray-800/50 last:border-none"
+                    className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-800/80 transition-colors border-b border-gray-800/50 last:border-none"
                   >
-                    <div className="w-10 h-14 bg-gray-800 rounded overflow-hidden flex-shrink-0">
+                    <div className="w-10 h-14 bg-gray-950 rounded-xl overflow-hidden flex-shrink-0 border border-gray-800">
                       {item.poster_path ? (
                         <img
                           src={`https://image.tmdb.org/t/p/w92${item.poster_path}`}
@@ -481,20 +506,20 @@ const Home = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
-                          🎬
+                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-500 font-bold">
+                          N/A
                         </div>
                       )}
                     </div>
                     <div className="flex-grow min-w-0">
-                      <h4 className="text-sm font-bold text-gray-200 truncate">{title}</h4>
-                      <p className="text-xs text-gray-400 flex items-center gap-2 mt-0.5">
-                        <span className="uppercase text-[10px] font-bold px-1.5 py-0.5 bg-gray-800 rounded">
+                      <h4 className="text-sm font-extrabold text-gray-100 truncate">{title}</h4>
+                      <p className="text-xs text-gray-400 flex items-center gap-2.5 mt-1 font-semibold">
+                        <span className="uppercase text-[9px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-md border border-amber-500/30">
                           {item.media_type}
                         </span>
                         {releaseYear && <span>{releaseYear}</span>}
                         {item.vote_average && (
-                          <span className="text-amber-400 font-bold">★ {Number(item.vote_average).toFixed(1)}</span>
+                          <span className="text-amber-400 font-extrabold">★ {Number(item.vote_average).toFixed(1)}</span>
                         )}
                       </p>
                     </div>
@@ -506,41 +531,41 @@ const Home = () => {
         </div>
 
         {/* Genre Selector Pills */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-3.5">
+            <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">
               {activeSearch
                 ? `Search Results for "${activeSearch}"`
-                : `Filter ${mediaType === 'movie' ? 'Movies' : 'TV Shows'} by Genre`}
+                : `Filter ${mediaType === 'movie' ? 'Movies' : 'TV Series'} by Genre`}
             </h3>
             {(activeSearch || selectedGenre) && (
               <button
                 onClick={clearSearch}
-                className="text-xs text-orange-400 hover:underline font-medium"
+                className="text-xs text-amber-400 hover:underline font-extrabold"
               >
                 Reset Filters
               </button>
             )}
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={clearSearch}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+              className={`px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
                 !selectedGenre && !activeSearch
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 shadow-md font-black'
+                  : 'bg-[#0D111D] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700'
               }`}
             >
-              All {mediaType === 'movie' ? 'Movies' : 'TV Shows'}
+              All {mediaType === 'movie' ? 'Movies' : 'TV Series'}
             </button>
             {genres.map((g) => (
               <button
                 key={g.id}
                 onClick={() => filterByGenre(g.id)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+                className={`px-4 py-2 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all ${
                   selectedGenre === g.id
-                    ? 'bg-orange-500 text-white shadow-md'
-                    : 'bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 shadow-md font-black'
+                    : 'bg-[#0D111D] border border-gray-800 text-gray-400 hover:text-white hover:border-gray-700'
                 }`}
               >
                 {g.name}
@@ -549,7 +574,7 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Movie Results */}
+        {/* Movie Results Grid */}
         {displayedMovies.length > 0 ? (
           <>
             <MovieList
@@ -559,27 +584,26 @@ const Home = () => {
 
             {/* Load More Button */}
             {hasMore && (
-              <div className="text-center mt-10 mb-12">
+              <div className="text-center mt-14 mb-12">
                 <button
                   onClick={loadMore}
                   disabled={loading}
-                  className="px-8 py-3 bg-gray-900 hover:bg-gray-800 border border-gray-800 text-orange-400 hover:text-orange-300 font-bold rounded-xl transition shadow-lg disabled:opacity-50"
+                  className="px-10 py-3.5 bg-[#0D111D] hover:bg-gray-800 border border-amber-500/35 text-amber-400 hover:text-amber-300 font-black text-xs uppercase tracking-wider rounded-2xl transition shadow-2xl disabled:opacity-50 cursor-pointer active:scale-95"
                 >
-                  {loading ? 'Loading...' : `Load More ${mediaType === 'movie' ? 'Movies' : 'TV Shows'}`}
+                  {loading ? 'Loading...' : `Load More ${mediaType === 'movie' ? 'Movies' : 'TV Series'}`}
                 </button>
               </div>
             )}
           </>
         ) : !loading ? (
-          <div className="text-center py-16 bg-gray-900/40 rounded-2xl border border-gray-800">
-            <span className="text-5xl block mb-3">🔍</span>
-            <h3 className="text-lg font-bold text-gray-300">No results found</h3>
-            <p className="text-gray-500 text-sm mt-1">Try searching for a different keyword or genre.</p>
+          <div className="text-center py-24 bg-[#0D111D]/60 rounded-3xl border border-gray-800">
+            <h3 className="text-xl font-extrabold text-gray-200">No results found</h3>
+            <p className="text-gray-400 text-sm mt-1">Try searching for a different title or selecting another genre.</p>
             <button
               onClick={clearSearch}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-lg hover:bg-orange-400"
+              className="mt-6 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 text-xs font-black rounded-xl hover:from-amber-400 hover:to-orange-400 shadow-lg cursor-pointer"
             >
-              Back to Home
+              Back to Trending
             </button>
           </div>
         ) : null}
